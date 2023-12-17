@@ -31,8 +31,8 @@ export default function Ideas({ ideas }) {
           {ideas.map((idea, idx) => {
             if (idx % 2 === 0) {
               return <div className="my-5 mx-7 p-5 bg-emerald-600 rounded-xl" key={idx}>
-                       <h2 className="text-2xl">{(idx + 1) - (idx / 2)}. {idea}</h2>
-                       <p className="text-lg">{ideas[idx + 1]}</p>
+                       <h2 className="text-xl sm:text-2xl">{(idx + 1) - (idx / 2)}. {idea}</h2>
+                       <p className="text-sm sm:text-lg">{ideas[idx + 1]}</p>
                      </div>
             }
           })}
