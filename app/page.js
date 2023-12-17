@@ -50,7 +50,7 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between px-6 py-24 sm:px-24">
+    <main className="flex min-h-screen flex-col items-center justify-between p-6 sm:p-24">
       <h1 className="font-bold text-4xl sm:text-6xl text-center bg-emerald-400 rounded-3xl p-11 shadow-xl">Broke Date Ideas for Broke Couples</h1>
       { !loadIdeas ?
         <div className="sm:flex sm:justify-evenly min-w-full border-separate">
