@@ -74,11 +74,11 @@ export default function Home() {
       }
       { !loadIdeas ?
         <button onClick={handleGenerate}
-        className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl"
+        className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl transition ease-in-out hover:-translate-y-1 hover:scale-100 duration-200"
         >Generate</button>
         :
         <button onClick={handleReset}
-        className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl"
+        className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl transition ease-in-out hover:-translate-y-1 hover:scale-100 duration-200"
         >Reset</button>
       }
     </main>
