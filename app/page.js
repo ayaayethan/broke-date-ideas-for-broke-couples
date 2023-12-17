@@ -15,8 +15,6 @@ const openai = new OpenAI({
 })
 
 export default function Home() {
-  const [ location, setLocation ] = useState('')
-  const [ budget, setBudget ] = useState(0)
   const [ ideas, setIdeas ] = useState([])
   const [ loadIdeas, setLoadIdeas ] = useState(false)
 
@@ -29,20 +27,19 @@ export default function Home() {
       return
     }
 
-    await setLocation(locationRef.current.value)
-    await setBudget(budgetRef.current.value)
-
     setLoadIdeas(true)
 
     const completion = await openai.chat.completions.create({
       messages: [{
         role: "system",
-        content: `Give me 10 date ideas based in ${location} assuming we have a budget of up to ${budget}`
+        content: `Give me 10 date ideas based in ${locationRef.current.value} assuming we have a budget of up to ${budgetRef.current.value} dollars.
+                  Please title each idea appropriately and separate it with a colon. Exclude the estimated price of each date.`
       }],
       model: "gpt-3.5-turbo"
     });
+    console.log(completion.choices[0].message.content)
 
-    let ideas = completion.choices[0].message.content.split(/\b\d+\.\s*/g).filter(string => string !== '')
+    let ideas = completion.choices[0].message.content.split(/\b\d+\.\s*|:/g).filter(string => string !== '')
 
     setIdeas(ideas)
   }
@@ -61,7 +58,7 @@ export default function Home() {
             <input id="location"
                   ref={locationRef}
                   placeholder="Where are you located?"
-                  autocomplete="off"
+                  autoComplete="off"
                   className="text-black py-2 rounded-full text-center mb-5"
                   ></input>
             <input type="number"
