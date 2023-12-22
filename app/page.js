@@ -4,13 +4,14 @@ import Ideas from './Ideas.js'
 
 import OpenAI from 'openai'
 import dotenv from 'dotenv'
+import axios from 'axios'
 
 import { useState, useEffect, useRef } from 'react'
 
 dotenv.config()
 
 const openai = new OpenAI({
-  apiKey: `${process.env.NEXT_PUBLIC_API_KEY}`,
+  apiKey: `${process.env.NEXT_PUBLIC_OPENAI_KEY}`,
   dangerouslyAllowBrowser: true
 })
 
@@ -27,21 +28,30 @@ export default function Home() {
       return
     }
 
+    let location = locationRef.current.value
+    let budget = budgetRef.current.value
+
     setLoadIdeas(true)
 
     const completion = await openai.chat.completions.create({
       messages: [{
         role: "system",
-        content: `Give me 10 date ideas based in ${locationRef.current.value} assuming we have a budget of up to ${budgetRef.current.value} dollars.
+        content: `Give me 10 date ideas based in ${location} assuming we have a budget of up to ${budget} dollars.
                   Please title each idea appropriately and separate it with a colon. Exclude the estimated price of each date.`
       }],
       model: "gpt-3.5-turbo"
     });
-    console.log(completion.choices[0].message.content)
 
     let ideas = completion.choices[0].message.content.split(/\b\d+\.\s*|:/g).filter(string => string !== '')
 
-    setIdeas(ideas)
+    await axios.post('/api/suggestions', {
+      data: {
+        ideas,
+        date_location: location
+      }
+    }).then(response => {
+      setIdeas(response.data)
+    })
   }
 
   const handleReset = async () => {
@@ -72,15 +82,9 @@ export default function Home() {
         :
         <Ideas ideas={ideas} />
       }
-      { !loadIdeas ?
-        <button onClick={handleGenerate}
-        className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl transition ease-in-out hover:-translate-y-1 hover:scale-100 duration-200"
-        >Generate</button>
-        :
-        <button onClick={handleReset}
-        className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl transition ease-in-out hover:-translate-y-1 hover:scale-100 duration-200"
-        >Reset</button>
-      }
+      <button onClick={ !loadIdeas ? handleGenerate : handleReset }
+      className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl transition ease-in-out hover:-translate-y-1 hover:scale-100 duration-200"
+      >{ !loadIdeas ? 'Generate' : 'Reset'}</button>
     </main>
   )
 }
