@@ -4,9 +4,11 @@ import Ideas from './Ideas.js'
 
 import OpenAI from 'openai'
 import dotenv from 'dotenv'
-import axios from 'axios'
 
 import { useState, useEffect, useRef } from 'react'
+import formatIdeas from '../helpers/formatIdeas.js'
+
+import { Carousel } from 'flowbite-react'
 
 dotenv.config()
 
@@ -18,6 +20,7 @@ const openai = new OpenAI({
 export default function Home() {
   const [ ideas, setIdeas ] = useState([])
   const [ loadIdeas, setLoadIdeas ] = useState(false)
+  const [ location , setLocation ] = useState('')
 
   const locationRef = useRef(null)
   const budgetRef = useRef(null)
@@ -32,26 +35,21 @@ export default function Home() {
     let budget = budgetRef.current.value
 
     setLoadIdeas(true)
+    setLocation(location)
 
     const completion = await openai.chat.completions.create({
       messages: [{
         role: "system",
         content: `Give me 10 date ideas based in ${location} assuming we have a budget of up to ${budget} dollars.
-                  Please title each idea appropriately and separate it with a colon. Exclude the estimated price of each date.`
+                  Please title each idea appropriately without quotation marks and separate it with a colon. Exclude the estimated price of each date.`
       }],
       model: "gpt-3.5-turbo"
     });
 
     let ideas = completion.choices[0].message.content.split(/\b\d+\.\s*|:/g).filter(string => string !== '')
+    let formatted = formatIdeas(ideas)
 
-    await axios.post('/api/suggestions', {
-      data: {
-        ideas,
-        date_location: location
-      }
-    }).then(response => {
-      setIdeas(response.data)
-    })
+    setIdeas(formatted)
   }
 
   const handleReset = async () => {
@@ -80,11 +78,11 @@ export default function Home() {
           </form>
         </div>
         :
-        <Ideas ideas={ideas} />
+        <Ideas ideas={ideas} location={location} />
       }
       <button onClick={ !loadIdeas ? handleGenerate : handleReset }
       className="bg-emerald-400 hover:bg-emerald-300 text-4xl py-5 px-12 rounded-xl shadow-xl transition ease-in-out hover:-translate-y-1 hover:scale-100 duration-200"
-      >{ !loadIdeas ? 'Generate' : 'Reset'}</button>
+      >{ !loadIdeas ? 'Generate' : 'Reset' }</button>
     </main>
   )
 }

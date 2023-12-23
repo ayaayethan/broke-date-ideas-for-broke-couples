@@ -11,38 +11,28 @@ const URL = 'https://api.yelp.com/v3/businesses/search'
 
 export async function POST(req, res) {
   const data = await req.json()
-  const {ideas, date_location} = data.data
+  const {idea, location} = data.data
 
-  let formatted = formatIdeas(ideas)
-  let promises = []
+  let term = idea.title.replace('"', '')
 
-  for (let i = 0; i < formatted.length; i++) {
-    promises.push(axios({
-      method: 'get',
-      url: URL,
-      headers: {
-        'Authorization': KEY,
-        'accept': 'application/json'
-      },
-      params: {
-        location: date_location,
-        term: formatted[i],
-        sort_by: 'rating',
-        limit: 5
-      }
-    }))
-  }
+  let result = await axios({
+    method: 'get',
+    url: URL,
+    headers: {
+      'Authorization': KEY,
+      'accept': 'application/json'
+    },
+    params: {
+      location,
+      term,
+      sort_by: 'rating',
+      limit: 5
+    }
+  })
 
-  //TODO
+  let related = result.data.businesses
 
-  try {
-    let results = await Promise.all(promises)
-    results.forEach((suggestion, idx) => {
-      formatted[idx].suggestions = suggestion.data.businesses;
-    })
-  } catch (error) {
-    console.log(error)
-  }
+  console.log(related)
 
-  return NextResponse.json(formatted)
+  return NextResponse.json(related)
 }
